@@ -225,9 +225,9 @@
       }
 
       if (lienFramaforms === "COLLER_ICI_LE_LIEN_DE_TON_FORMULAIRE") {
-  alert("Le lien Framaforms n'a pas encore été configuré.");
-  return;
-}
+          alert("Le lien Framaforms n'a pas encore été configuré.");
+          return;
+      }
 
       const url = lienFramaforms
         + "?choix1=" + encodeURIComponent(choix[0])
