@@ -1,1 +1,242 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Vote des spirales colorées</title>
 
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: #f5f7fb;
+      color: #222;
+      text-align: center;
+    }
+
+    header {
+      background: linear-gradient(135deg, #3ca1bc, #2e73db);
+      color: white;
+      padding: 28px 15px;
+      margin-bottom: 20px;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 2.2em;
+    }
+
+    header p {
+      margin-bottom: 0;
+      font-size: 1.1em;
+    }
+
+    .consigne {
+      max-width: 900px;
+      margin: 20px auto;
+      background-color: white;
+      border-left: 8px solid #3ca1bc;
+      border-radius: 10px;
+      padding: 15px 20px;
+      text-align: left;
+      box-shadow: 2px 2px 8px #ddd;
+    }
+
+    #barre-selection {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background-color: #fffbe6;
+      border-top: 2px solid #f0c36d;
+      border-bottom: 2px solid #f0c36d;
+      padding: 12px;
+      font-size: 18px;
+    }
+
+    #galerie {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 18px;
+      margin: 25px;
+    }
+
+    .carte {
+      width: 220px;
+      background: white;
+      border: 3px solid #dce6f5;
+      border-radius: 14px;
+      padding: 10px;
+      box-shadow: 2px 2px 7px #ccc;
+      transition: transform 0.2s, border 0.2s, background-color 0.2s;
+    }
+
+    .carte:hover {
+      transform: scale(1.03);
+    }
+
+    .carte img {
+      width: 200px;
+      height: 200px;
+      object-fit: contain;
+      background-color: black;
+      border-radius: 10px;
+      border: 1px solid #ddd;
+      cursor: pointer;
+    }
+
+    .carte p {
+      margin: 8px 0;
+      font-weight: bold;
+      color: #333;
+    }
+
+    button {
+      padding: 8px 12px;
+      border: none;
+      border-radius: 8px;
+      background-color: #2e73db;
+      color: white;
+      cursor: pointer;
+      font-size: 15px;
+    }
+
+    button:hover {
+      background-color: #1f5bb5;
+    }
+
+    .selectionnee {
+      border: 4px solid #2ecc71;
+      background-color: #f0fff4;
+    }
+
+    .selectionnee button {
+      background-color: #2ecc71;
+    }
+
+    #valider {
+      display: none;
+      margin: 20px auto 35px auto;
+      padding: 14px 24px;
+      font-size: 18px;
+      background-color: #27ae60;
+    }
+
+    #valider:hover {
+      background-color: #1e874b;
+    }
+  </style>
+</head>
+
+<body>
+
+  <header>
+    <h1>🌀 Vote des spirales colorées</h1>
+    <p>Choisis tes 3 productions préférées.</p>
+  </header>
+
+  <div class="consigne">
+    <p><strong>Consigne :</strong> observe les spirales, puis sélectionne exactement <strong>3 images</strong>.</p>
+    <p>Tu peux cliquer directement sur une image ou sur le bouton situé en dessous.</p>
+    <p>Quand tes 3 images sont sélectionnées, clique sur <strong>Valider mon vote</strong>.</p>
+  </div>
+
+  <div id="barre-selection">
+    Tu as sélectionné : aucune image pour le moment.
+  </div>
+
+  <button id="valider" onclick="validerVote()">Valider mon vote</button>
+
+  <div id="galerie"></div>
+
+  <script>
+    const nombreImages = 66;
+    const extension = ".png";
+
+    // Mets ici le lien de ton Framaforms, sans les paramètres ?choix1=...
+    const lienFramaforms = "COLLER_ICI_LE_LIEN_DE_TON_FORMULAIRE";
+
+    const choix = [];
+    const galerie = document.getElementById("galerie");
+    const barreSelection = document.getElementById("barre-selection");
+    const boutonValider = document.getElementById("valider");
+
+    for (let i = 1; i <= nombreImages; i++) {
+      const numero = String(i).padStart(2, "0");
+      const nomImage = "image_" + numero;
+      const cheminImage = "images/" + nomImage + extension;
+
+      const carte = document.createElement("div");
+      carte.className = "carte";
+      carte.id = "carte_" + nomImage;
+
+      carte.innerHTML = `
+        <img src="${cheminImage}" alt="${nomImage}" onclick="voter('${nomImage}')">
+        <p>${nomImage}</p>
+        <button onclick="voter('${nomImage}')">Sélectionner</button>
+      `;
+
+      galerie.appendChild(carte);
+    }
+
+    function voter(nomImage) {
+      const carte = document.getElementById("carte_" + nomImage);
+
+      if (choix.includes(nomImage)) {
+        const index = choix.indexOf(nomImage);
+        choix.splice(index, 1);
+        carte.classList.remove("selectionnee");
+        afficherSelection();
+        return;
+      }
+
+      if (choix.length >= 3) {
+        alert("Tu as déjà sélectionné 3 images. Tu peux en désélectionner une si tu veux changer.");
+        return;
+      }
+
+      choix.push(nomImage);
+      carte.classList.add("selectionnee");
+      afficherSelection();
+    }
+
+    function afficherSelection() {
+      if (choix.length === 0) {
+        barreSelection.innerHTML = "Tu as sélectionné : aucune image pour le moment.";
+      } else {
+        barreSelection.innerHTML = `
+          Tu as sélectionné :
+          <strong>${choix.join(" — ")}</strong>
+          <br>
+          Il te reste ${3 - choix.length} choix.
+        `;
+      }
+
+      if (choix.length === 3) {
+        boutonValider.style.display = "block";
+      } else {
+        boutonValider.style.display = "none";
+      }
+    }
+
+    function validerVote() {
+      if (choix.length !== 3) {
+        alert("Tu dois sélectionner exactement 3 images.");
+        return;
+      }
+
+      if (lienFramaforms === "https://framaforms.org/spirales-colorees-travail-des-2ndes-2025-2026-1777388362") {
+        alert("Le lien Framaforms n'a pas encore été configuré.");
+        return;
+      }
+
+      const url = lienFramaforms
+        + "?choix1=" + encodeURIComponent(choix[0])
+        + "&choix2=" + encodeURIComponent(choix[1])
+        + "&choix3=" + encodeURIComponent(choix[2]);
+
+      window.open(url, "_blank");
+    }
+  </script>
+
+</body>
+</html>
